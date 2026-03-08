@@ -1,0 +1,44 @@
+# JobPilot Configuration
+# Copy this to settings.yaml and fill in your values.
+
+# ── LLM Configuration ────────────────────────────────────────
+llm:
+  api_key: "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"  # Or set ANTHROPIC_API_KEY environment variable
+  triage_model: "claude-haiku-4-5-20251001"      # Cost-efficient for assessment
+  generate_model: "claude-sonnet-4-20250514"  # Quality for resume/cover letter
+  max_tokens_triage: 1500
+  max_tokens_generate: 4000
+
+# ── Salary Thresholds ────────────────────────────────────────
+salary:
+  min_us: 170000       # USD - minimum base for US roles
+  min_spain: 70000     # EUR - minimum base for Spain roles
+  currency_us: "USD"
+  currency_spain: "EUR"
+
+# ── Scoring Thresholds ───────────────────────────────────────
+thresholds:
+  min_fit_score_apply: 80     # Auto-queue for "Ready to Apply"
+  min_fit_score_review: 65    # Flag for manual review
+  min_career_score: 60        # Minimum career trajectory value
+  min_confidence_score: 70    # Minimum confidence for auto-decisions
+
+# ── Pipeline Settings ────────────────────────────────────────
+pipeline:
+  daily_queue_target: 10      # Max roles in morning queue
+  discovery_cap: 150          # Max raw roles per pipeline run
+  freshness_days: 14          # Only roles posted within N days
+  schedule_cron: "0 4 * * *"          # Daily at 4:00 AM
+  market_intel_cron: "0 3 * * 0"      # Sunday at 3:00 AM
+
+# ── Scraping Configuration ───────────────────────────────────
+scraping:
+  headless: true
+  rate_limit_seconds: 3.0     # Delay between requests
+  max_retries: 3
+  linkedin_session_cookie: "" # Or set LINKEDIN_SESSION_COOKIE env var
+
+# ── General ──────────────────────────────────────────────────
+master_resume_path: "data/master_resume.pdf"
+data_dir: "data"
+log_level: "INFO"

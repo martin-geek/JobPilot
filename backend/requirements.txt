@@ -1,0 +1,40 @@
+# JobPilot Backend Dependencies
+
+# API Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Database
+aiosqlite==0.20.0
+
+# Data Validation
+pydantic==2.10.3
+
+# LLM Client
+anthropic==0.42.0
+
+# Browser Automation (Job Scraping)
+playwright==1.49.1
+
+# PDF Processing (Resume parsing)
+PyMuPDF==1.25.1
+
+# Document Generation
+python-docx==1.1.2
+
+# Configuration
+pyyaml==6.0.2
+
+# Scheduling
+apscheduler==3.10.4
+
+# Excel Import (for existing tracking sheet)
+openpyxl==3.1.5
+
+# Utilities
+python-dateutil==2.9.0
+httpx==0.28.1
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
