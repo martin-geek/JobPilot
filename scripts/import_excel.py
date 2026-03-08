@@ -16,7 +16,7 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import openpyxl
-from backend.db.database import get_sync_connection, init_database
+from backend.db.database import get_sync_connection, DB_PATH, init_database
 from backend.agents.discovery import generate_fingerprint
 
 
@@ -28,7 +28,9 @@ def import_excel(file_path: str):
         sys.exit(1)
 
     # Initialize DB if needed
-    init_database()
+    from backend.db.database import DB_PATH, init_database
+    if not DB_PATH.exists():
+        init_database()
 
     wb = openpyxl.load_workbook(str(path))
     ws = wb.active
@@ -41,7 +43,7 @@ def import_excel(file_path: str):
     col_map = {}
     for i, h in enumerate(headers):
         h_lower = h.lower().strip() if h else ""
-        if "title" in h_lower or "role" in h_lower:
+        if "title" in h_lower or "role" in h_lower or "job" in h_lower:
             col_map["title"] = i
         elif "company" in h_lower:
             col_map["company"] = i
@@ -49,8 +51,10 @@ def import_excel(file_path: str):
             col_map["url"] = i
         elif "status" in h_lower:
             col_map["status"] = i
-        elif "date" in h_lower:
+        elif "date" in h_lower or "applied" in h_lower:
             col_map["date"] = i
+        elif "note" in h_lower:
+            col_map["notes"] = i
 
     print(f"Column mapping: {col_map}")
 
@@ -67,21 +71,26 @@ def import_excel(file_path: str):
             continue
 
         title = str(row[col_map["title"]]).strip()
-        company = str(row[col_map["company"]]).strip()
+        company = str(row[col_map["company"]]).strip().lstrip('\n').strip()
         url = str(row[col_map.get("url", 0)] or "").strip() if "url" in col_map else ""
         status_raw = str(row[col_map.get("status", 0)] or "").strip().lower() if "status" in col_map else "applied"
         date_val = row[col_map.get("date", 0)] if "date" in col_map else None
+        notes_val = str(row[col_map.get("notes", 0)] or "").strip() if "notes" in col_map else ""
 
         # Map status values
         status_map = {
             "applied": "applied",
             "screening": "screening",
+            "screener": "screening",
+            "phone screen": "phone_screen",
             "interview": "interview_1",
             "interviews": "interview_1",
             "selected": "offer",
             "not selected": "rejected",
             "rejected": "rejected",
             "withdrawn": "withdrawn",
+            "unknown": "applied",  # Default unknown to applied
+            "none": "applied",
         }
         status = status_map.get(status_raw, "applied")
 
@@ -118,9 +127,9 @@ def import_excel(file_path: str):
 
         # Create application record
         conn.execute("""
-            INSERT INTO applications (job_id, status, applied_date)
-            VALUES (?, ?, ?)
-        """, (job_id, status, applied_date))
+            INSERT INTO applications (job_id, status, applied_date, notes)
+            VALUES (?, ?, ?, ?)
+        """, (job_id, status, applied_date, notes_val or None))
 
         # Log activity
         conn.execute("""

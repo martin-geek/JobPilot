@@ -3,7 +3,7 @@
 
 # ── LLM Configuration ────────────────────────────────────────
 llm:
-  api_key: "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"  # Or set ANTHROPIC_API_KEY environment variable
+  api_key: "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"  # Or set ANTHROPIC_API_KEY environment variable
   triage_model: "claude-haiku-4-5-20251001"      # Cost-efficient for assessment
   generate_model: "claude-sonnet-4-20250514"  # Quality for resume/cover letter
   max_tokens_triage: 1500
