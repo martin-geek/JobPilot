@@ -35,11 +35,9 @@ fi
 
 # Start backend
 echo "🔧 Starting backend (FastAPI on :8000)..."
-cd backend
-source venv/bin/activate
-uvicorn api.main:app --host 0.0.0.0 --port 8000 &
+source backend/venv/bin/activate
+PYTHONPATH="$PROJECT_DIR" uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
-cd "$PROJECT_DIR"
 
 # Wait for backend to be ready
 echo "   Waiting for backend..."
@@ -53,10 +51,8 @@ done
 
 # Start frontend
 echo "🎨 Starting frontend (Vite on :5173)..."
-cd frontend
-npm run dev &
+(cd "$PROJECT_DIR/frontend" && npm run dev) &
 FRONTEND_PID=$!
-cd "$PROJECT_DIR"
 
 echo ""
 echo "✅ JobPilot is running!"
