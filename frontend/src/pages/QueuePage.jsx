@@ -26,6 +26,7 @@ function ScoreRing({ score, size = 48 }) {
 }
 
 function QueueCard({ job, onApply, onSkip }) {
+  const isPendingAssessment = Boolean(job.pending_assessment)
   const keyMatches = Array.isArray(job.key_matches) ? job.key_matches : []
   const gaps = Array.isArray(job.gaps) ? job.gaps : []
   const riskFlags = Array.isArray(job.risk_flags) ? job.risk_flags : []
@@ -35,9 +36,13 @@ function QueueCard({ job, onApply, onSkip }) {
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={`badge ${job.triage_category === 'strong_fit' ? 'badge-success' : 'badge-warning'}`}>
-              {job.triage_category === 'strong_fit' ? 'Strong Fit' : 'Stretch'}
-            </span>
+            {isPendingAssessment ? (
+              <span className="badge badge-info">Assessment Pending</span>
+            ) : (
+              <span className={`badge ${job.triage_category === 'strong_fit' ? 'badge-success' : 'badge-warning'}`}>
+                {job.triage_category === 'strong_fit' ? 'Strong Fit' : 'Stretch'}
+              </span>
+            )}
             {job.salary_estimate && (
               <span className="badge badge-info">${Math.round(job.salary_estimate / 1000)}K est.</span>
             )}
@@ -52,14 +57,27 @@ function QueueCard({ job, onApply, onSkip }) {
           </p>
         </div>
         <div className="flex items-center gap-3 ml-4">
-          <ScoreRing score={job.fit_score} />
-          <ScoreRing score={job.career_score} />
+          {isPendingAssessment ? (
+            <div className="text-xs text-surface-200/50 text-right">
+              <Clock className="w-4 h-4 inline-block mr-1" />
+              Scoring soon
+            </div>
+          ) : (
+            <>
+              <ScoreRing score={job.fit_score} />
+              <ScoreRing score={job.career_score} />
+            </>
+          )}
         </div>
       </div>
 
-      <p className="text-sm text-surface-200/70 mb-4 leading-relaxed">{job.rationale}</p>
+      <p className="text-sm text-surface-200/70 mb-4 leading-relaxed">
+        {isPendingAssessment
+          ? 'This role was added manually and is waiting for AI assessment. It will be scored and triaged automatically.'
+          : job.rationale}
+      </p>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      {!isPendingAssessment && <div className="grid grid-cols-2 gap-4 mb-4">
         {keyMatches.length > 0 && (
           <div>
             <h4 className="text-xs uppercase tracking-wider text-success/70 mb-2 flex items-center gap-1">
@@ -80,9 +98,9 @@ function QueueCard({ job, onApply, onSkip }) {
             </ul>
           </div>
         )}
-      </div>
+      </div>}
 
-      {riskFlags.length > 0 && (
+      {!isPendingAssessment && riskFlags.length > 0 && (
         <div className="mb-4 px-3 py-2 rounded-lg bg-warning/5 border border-warning/10">
           <p className="text-xs text-warning/80">⚠️ {riskFlags.join(' · ')}</p>
         </div>
@@ -105,12 +123,20 @@ function QueueCard({ job, onApply, onSkip }) {
           </a>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => onSkip(job.id)} className="btn-ghost text-xs py-1.5 px-3">
-            <XCircle className="w-3.5 h-3.5" /> Skip
-          </button>
-          <button onClick={() => onApply(job.id)} className="btn-success text-xs py-1.5 px-3">
-            <CheckCircle className="w-3.5 h-3.5" /> Mark Applied
-          </button>
+          {isPendingAssessment ? (
+            <Link to={`/jobs/${job.id}`} className="btn-ghost text-xs py-1.5 px-3">
+              <Clock className="w-3.5 h-3.5" /> View Role
+            </Link>
+          ) : (
+            <>
+              <button onClick={() => onSkip(job.id)} className="btn-ghost text-xs py-1.5 px-3">
+                <XCircle className="w-3.5 h-3.5" /> Skip
+              </button>
+              <button onClick={() => onApply(job.id)} className="btn-success text-xs py-1.5 px-3">
+                <CheckCircle className="w-3.5 h-3.5" /> Mark Applied
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
