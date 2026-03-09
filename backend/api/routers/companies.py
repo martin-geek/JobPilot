@@ -210,7 +210,7 @@ async def _search_company_portal(company_id: int, company_name: str, career_url:
         """, (f"Company search: {company_name} — found {found_count} roles",))
 
 
-async def _discover_career_url(page, company_name: str) -> str | None:
+async def _discover_career_url(page, company_name: str) -> Optional[str]:
     """Try to discover a company's career page URL."""
     import asyncio
 

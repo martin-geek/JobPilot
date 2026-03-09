@@ -8,6 +8,7 @@ Uses Haiku for cost-efficient triage — approximately $0.002-0.005 per evaluati
 
 import json
 import logging
+from typing import Optional
 from pathlib import Path
 from anthropic import Anthropic
 from backend.agents.base import BaseAgent
@@ -17,7 +18,7 @@ from backend.config.settings import get_config
 logger = logging.getLogger("jobpilot")
 
 # Master resume text (loaded once at agent init)
-_resume_text: str | None = None
+_resume_text: Optional[str] = None
 
 
 def _load_resume() -> str:

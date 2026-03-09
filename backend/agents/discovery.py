@@ -294,7 +294,7 @@ class DiscoveryAgent(BaseAgent):
         logger.info(f"Built In search: {query['keywords']} — placeholder")
 
     @staticmethod
-    def _parse_salary(salary_text: str) -> tuple[Optional[float], Optional[float]]:
+    def _parse_salary(salary_text: str) -> tuple:
         """Extract min/max salary from text like '$150,000 - $200,000 a year'."""
         if not salary_text:
             return None, None

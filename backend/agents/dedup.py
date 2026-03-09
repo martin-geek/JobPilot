@@ -75,7 +75,7 @@ class DedupAgent(BaseAgent):
 
             logger.info(f"Dedup complete: {duplicates_found} duplicates found")
 
-    def _find_fuzzy_match(self, job: dict, existing: list[dict]) -> tuple[bool, int | None]:
+    def _find_fuzzy_match(self, job: dict, existing: list) -> tuple:
         """Check if a job is a fuzzy duplicate of any existing job.
 
         Compares title + company similarity. If both are very similar
