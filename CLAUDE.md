@@ -114,6 +114,13 @@ FastAPI app in `backend/api/main.py` includes 8 routers:
 ### Frontend
 React 18 SPA with React Router. `frontend/src/App.jsx` defines the fixed sidebar and all routes. All API calls go through `frontend/src/utils/api.js`. Key pages: QueuePage (morning queue), PipelinePage (Kanban), SalaryPage, MapPage (React-Leaflet), MarketPage (Recharts), CompaniesPage, SettingsPage.
 
+## Git Workflow
+
+- After completing any task, stage relevant files, write a clear commit message, and push to `origin/main`
+- Commit messages must describe *what changed and why* (not vague labels like "updates")
+- Never commit secrets, the SQLite DB (`data/jobpilot.db`), generated files, or `.DS_Store` — all covered by `.gitignore`
+- Remote: `https://github.com/martin-geek/JobPilot.git`
+
 ## LLM Usage Pattern
 
 - **Triage/scoring**: Claude Haiku (`claude-haiku-4-5-20251001`) — low cost, high volume
