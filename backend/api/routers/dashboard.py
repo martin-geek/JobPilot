@@ -51,9 +51,13 @@ async def get_dashboard_stats():
         row = await cursor.fetchone()
         stats["avg_fit_score"] = round(row["avg_fit"] or 0, 1)
 
-        # Today's queue count
+        # Today's queue count (+ manual imports that are still pending assessment)
         cursor = await db.execute("""
-            SELECT COUNT(*) as count FROM jobs WHERE status = 'queued'
+            SELECT COUNT(*) as count
+            FROM jobs j
+            LEFT JOIN assessments a ON j.id = a.job_id
+            WHERE j.status = 'queued'
+               OR (j.source = 'manual' AND j.status = 'discovered' AND a.id IS NULL)
         """)
         stats["today_queue_count"] = (await cursor.fetchone())["count"]
 
@@ -71,11 +75,15 @@ async def get_dashboard_stats():
 
 @router.get("/queue")
 async def get_morning_queue():
-    """Get the morning queue — roles ready to apply, sorted by fit score."""
+    """Get the morning queue including manually added roles pending assessment."""
     async with get_db() as db:
         cursor = await db.execute("""
             SELECT
                 j.*,
+                CASE
+                    WHEN j.source = 'manual' AND j.status = 'discovered' AND a.id IS NULL THEN 1
+                    ELSE 0
+                END AS pending_assessment,
                 a.fit_score,
                 a.career_score,
                 a.compensation_score,
@@ -90,9 +98,14 @@ async def get_morning_queue():
                 a.salary_estimate,
                 a.salary_confidence
             FROM jobs j
-            JOIN assessments a ON j.id = a.job_id
-            WHERE j.status = 'queued'
-            ORDER BY a.fit_score DESC, a.career_score DESC
+            LEFT JOIN assessments a ON j.id = a.job_id
+            WHERE (j.status = 'queued' AND a.id IS NOT NULL)
+               OR (j.source = 'manual' AND j.status = 'discovered' AND a.id IS NULL)
+            ORDER BY
+                pending_assessment ASC,
+                a.fit_score DESC,
+                a.career_score DESC,
+                j.discovered_at DESC
             LIMIT 15
         """)
         rows = await cursor.fetchall()
